@@ -1,13 +1,12 @@
 import GlobalStyle from '../styles/GlobalStyle';
 
-
-function MyApp({ Component, pageProps }) {
+const MyApp: React.FC = ({ Component, pageProps }: any) => {
   return (
     <>
       <GlobalStyle />
       <Component {...pageProps} />
     </>
-  )
-}
+  );
+};
 
-export default MyApp
+export default MyApp;
