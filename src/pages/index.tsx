@@ -37,5 +37,7 @@ export const getServerSideProps: GetServerSideProps<HomeProps> = async () => {
     props: {
       recommendedProducts,
     },
+
+    revalidate: 5,
   };
 };
