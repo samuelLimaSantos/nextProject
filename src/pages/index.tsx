@@ -1,26 +1,17 @@
 import { GetServerSideProps } from 'next';
+import Link from 'next/link';
+import Prismic from 'prismic-javascript';
+import { Document } from 'prismic-javascript/types/documents';
+import PrismicDOM from 'prismic-dom';
 import SEO from '../components/SEO';
+import { client } from '../lib/prismic';
 import { Title } from '../styles/pages/Home';
 
-interface IProduct {
-  id: number;
-  title: string;
-  price: number;
-  category_id: string;
-  slug: string;
-}
-
 interface HomeProps {
-  recommendedProducts: IProduct[];
+  recommendedProducts: Document[];
 }
 
 export default function Home({ recommendedProducts }: HomeProps) {
-  const sum = async () => {
-    const { math } = (await import('../pages/lib/math')).default;
-
-    alert(math(3, 2));
-  };
-
   return (
     <div>
       <SEO
@@ -31,26 +22,31 @@ export default function Home({ recommendedProducts }: HomeProps) {
         <Title>Hello Rocketseat</Title>
 
         <ul>
-          {recommendedProducts.map(product => {
-            return <li key={product.id}>{product.title}</li>;
+          {recommendedProducts.map(recommendedProduct => {
+            return (
+              <li key={recommendedProduct.id}>
+                <Link href={`/products/${recommendedProduct.uid}`}>
+                  <a>
+                    {PrismicDOM.RichText.asText(recommendedProduct.data.title)}
+                  </a>
+                </Link>
+              </li>
+            );
           })}
         </ul>
-
-        <button type="button" onClick={sum}>
-          Soma
-        </button>
       </section>
     </div>
   );
 }
 
 export const getServerSideProps: GetServerSideProps<HomeProps> = async () => {
-  const response = await fetch(`${process.env.API_URL}/recommended`);
-  const recommendedProducts = await response.json();
+  const recommendedProducts = await client().query([
+    Prismic.Predicates.at('document.type', 'product'),
+  ]);
 
   return {
     props: {
-      recommendedProducts,
+      recommendedProducts: recommendedProducts.results,
     },
   };
 };
